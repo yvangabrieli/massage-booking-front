@@ -1,58 +1,111 @@
 import { useEffect, useState } from "react";
 import { getServices } from "../../services/serviceService";
+import PropTypes from "prop-types";
 
 const CATEGORY_LABELS = {
-  DEEP_TISSUE: "Toque Profundo",
-  RELAXING: "Relajación",
-  SPECIALIZED: "Especializado",
+  DEEP_TISSUE: "Deep Tissue",
+  RELAXING: "Relaxation",
+  SPECIALIZED: "Specialized",
+};
+
+const ServiceCard = ({ service, isSelected, onSelect }) => (
+  <div
+    className={`col-md-4 ${isSelected ? "selected-service" : ""}`}
+    onClick={() => onSelect(service)}
+    role="button"
+    tabIndex={0}
+    onKeyPress={(e) => e.key === "Enter" && onSelect(service)}
+  >
+    <div className="service-card">
+      <div className="service-header">
+        <h6 className="service-name">{service.name}</h6>
+        {isSelected && <span className="check-badge">✓</span>}
+      </div>
+      <span className="category-label">
+        {CATEGORY_LABELS[service.category] || service.category}
+      </span>
+      <div className="service-meta">
+        <span className="duration-badge">{service.durationMinutes} min</span>
+        {service.price && <span className="price-tag">{service.price}€</span>}
+      </div>
+      {service.description && (
+        <p className="service-description">{service.description}</p>
+      )}
+    </div>
+  </div>
+);
+
+ServiceCard.propTypes = {
+  service: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    category: PropTypes.string.isRequired,
+    durationMinutes: PropTypes.number.isRequired,
+    price: PropTypes.number,
+    description: PropTypes.string,
+  }).isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
 };
 
 const ServiceSelector = ({ onSelect, selectedId }) => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    getServices()
-      .then((res) => setServices(res.data || []))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    const fetchServices = async () => {
+      try {
+        const response = await getServices();
+        setServices(response.data || []);
+      } catch (err) {
+        setError("Failed to load services. Please try again.");
+        console.error("Service fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
   }, []);
 
-  if (loading) return <div className="mb-4 text-muted">Cargando servicios...</div>;
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner" />
+        <span>Loading services...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
 
   return (
-    <div className="mb-4">
-      <h5 className="mb-3">Selecciona un tratamiento</h5>
-      <div className="row g-3">
+    <section className="service-selector">
+      <h4 className="section-title">Select Your Treatment</h4>
+      <div className="services-grid">
         {services.map((service) => (
-          <div key={service.id} className="col-md-4">
-            <div
-              className={`card h-100 p-3 cursor-pointer ${selectedId === service.id ? "border-success border-2" : ""}`}
-              style={{ cursor: "pointer", transition: "0.2s" }}
-              onClick={() => onSelect(service)}
-            >
-              <div className="d-flex justify-content-between align-items-start mb-1">
-                <strong>{service.name}</strong>
-                {selectedId === service.id && <span className="badge bg-success">✓</span>}
-              </div>
-              <small className="text-muted">
-                {CATEGORY_LABELS[service.category] || service.category}
-              </small>
-              <div className="mt-2">
-                <span className="badge bg-light text-dark me-2">{service.durationMinutes} min</span>
-                {service.price && <span className="fw-bold">{service.price}€</span>}
-              </div>
-              {service.description && (
-                <p className="text-muted mt-2 mb-0" style={{ fontSize: "0.85rem" }}>
-                  {service.description}
-                </p>
-              )}
-            </div>
-          </div>
+          <ServiceCard
+            key={service.id}
+            service={service}
+            isSelected={selectedId === service.id}
+            onSelect={onSelect}
+          />
         ))}
       </div>
-    </div>
+    </section>
   );
+};
+
+ServiceSelector.propTypes = {
+  onSelect: PropTypes.func.isRequired,
+  selectedId: PropTypes.number,
+};
+
+ServiceSelector.defaultProps = {
+  selectedId: null,
 };
 
 export default ServiceSelector;

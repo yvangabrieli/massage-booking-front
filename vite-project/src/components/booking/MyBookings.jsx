@@ -1,85 +1,184 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getMyBookings, cancelBooking } from "../../services/bookingService";
+import PropTypes from "prop-types";
 
-const STATUS = {
-  BOOKED: { label: "Upcoming", color: "#2e7d32", bg: "#e8f5e9" },
-  COMPLETED: { label: "Completed", color: "#555", bg: "#f0f0f0" },
-  CANCELED: { label: "Cancelled", color: "#c62828", bg: "#ffebee" },
-  NO_SHOW: { label: "No Show", color: "#e65100", bg: "#fff3e0" },
+const STATUS_CONFIG = {
+  BOOKED: { label: "Upcoming", className: "status-upcoming" },
+  COMPLETED: { label: "Completed", className: "status-completed" },
+  CANCELED: { label: "Cancelled", className: "status-cancelled" },
+  NO_SHOW: { label: "No Show", className: "status-no-show" },
 };
+
+const BookingCard = ({ booking, onCancel }) => {
+  const status = STATUS_CONFIG[booking.status] || {
+    label: booking.status,
+    className: "status-default",
+  };
+
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    return {
+      date: date.toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+      time: date.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+  };
+
+  const { date, time } = formatDateTime(booking.startTime);
+
+  return (
+    <div className="booking-card">
+      <div className="booking-info">
+        <div className="booking-header">
+          <h6 className="service-name">{booking.service?.name || "Session"}</h6>
+          <span className={`status-badge ${status.className}`}>
+            {status.label}
+          </span>
+        </div>
+        <div className="booking-datetime">
+          <span className="date">{date}</span>
+          <span className="separator">·</span>
+          <span className="time">{time}</span>
+        </div>
+        {booking.service?.durationMinutes && (
+          <span className="duration">{booking.service.durationMinutes} min</span>
+        )}
+        {booking.canceledReason && (
+          <p className="cancel-reason">Reason: {booking.canceledReason}</p>
+        )}
+      </div>
+      {booking.status === "BOOKED" && booking.canCancel && (
+        <button
+          className="cancel-btn"
+          onClick={() => onCancel(booking)}
+          type="button"
+        >
+          Cancel
+        </button>
+      )}
+    </div>
+  );
+};
+
+BookingCard.propTypes = {
+  booking: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    status: PropTypes.string.isRequired,
+    startTime: PropTypes.string.isRequired,
+    canCancel: PropTypes.bool,
+    canceledReason: PropTypes.string,
+    service: PropTypes.shape({
+      name: PropTypes.string,
+      durationMinutes: PropTypes.number,
+    }),
+  }).isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
+
+const EmptyState = () => (
+  <div className="empty-state">
+    <span className="empty-icon">📋</span>
+    <p>No bookings yet — book your first session above!</p>
+  </div>
+);
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
 
-  const load = () => {
+  const loadBookings = useCallback(async () => {
     setLoading(true);
-    getMyBookings()
-      .then(res => setBookings(res.data.content || []))
-      .catch(() => setError("Could not load bookings"))
-      .finally(() => setLoading(false));
-  };
+    setError(null);
+    try {
+      const response = await getMyBookings();
+      setBookings(response.data.content || []);
+    } catch {
+      setError("Could not load bookings. Please refresh the page.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    loadBookings();
+  }, [loadBookings]);
 
-  const handleCancel = (b) => {
-    if (!b.canCancel) return setError("Cannot cancel within 12 hours of appointment");
-    if (!window.confirm("Cancel this booking?")) return;
-    cancelBooking(b.id, "Cancelled by client").then(load).catch(() => setError("Could not cancel booking"));
-  };
+  const handleCancel = useCallback(
+    async (booking) => {
+      if (!booking.canCancel) {
+        setError("Cannot cancel within 12 hours of appointment");
+        return;
+      }
 
-  if (loading) return <div className="text-center py-3"><div className="spinner-border spinner-border-sm" style={{ color: "var(--brown)" }} /></div>;
+      if (!window.confirm("Are you sure you want to cancel this booking?")) {
+        return;
+      }
 
-  if (bookings.length === 0) return (
-    <div style={{ textAlign: "center", padding: "2rem", color: "#aaa" }}>
-      <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>📋</div>
-      <div>No bookings yet — book your first session above!</div>
-    </div>
+      try {
+        await cancelBooking(booking.id, "Cancelled by client");
+        await loadBookings();
+      } catch {
+        setError("Could not cancel booking. Please try again.");
+      }
+    },
+    [loadBookings]
   );
 
-  return (
-    <div>
-      {error && <div className="alert alert-danger alert-dismissible mb-3">
-        {error}<button className="btn-close" onClick={() => setError("")} />
-      </div>}
-      <div className="row g-3">
-        {bookings.map(b => {
-          const s = STATUS[b.status] || { label: b.status, color: "#555", bg: "#f0f0f0" };
-          return (
-            <div key={b.id} className="col-md-6">
-              <div style={{ background: "white", borderRadius: "14px", padding: "1.25rem", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                    <strong style={{ color: "var(--brown-dark)" }}>{b.service?.name || "Session"}</strong>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 700, background: s.bg, color: s.color, padding: "2px 10px", borderRadius: "20px" }}>{s.label}</span>
-                  </div>
-                  <div style={{ color: "#666", fontSize: "0.9rem" }}>
-                    {new Date(b.startTime).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
-                    {" · "}
-                    {new Date(b.startTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-                  </div>
-                  {b.service?.durationMinutes && (
-                    <div style={{ color: "#aaa", fontSize: "0.82rem", marginTop: "2px" }}>{b.service.durationMinutes} min</div>
-                  )}
-                  {b.canceledReason && (
-                    <div style={{ color: "#e57373", fontSize: "0.82rem", marginTop: "4px" }}>Reason: {b.canceledReason}</div>
-                  )}
-                </div>
-                {b.status === "BOOKED" && b.canCancel && (
-                  <button onClick={() => handleCancel(b)}
-                    style={{ background: "none", border: "1px solid #ffcdd2", color: "#e57373", borderRadius: "8px", padding: "6px 12px", fontSize: "0.82rem", cursor: "pointer", whiteSpace: "nowrap", transition: "0.2s" }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "#ffebee"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
+  const dismissError = () => setError(null);
+
+  if (loading) {
+    return (
+      <div className="loading-center">
+        <div className="spinner" />
       </div>
-    </div>
+    );
+  }
+
+  if (bookings.length === 0) {
+    return <EmptyState />;
+  }
+
+  return (
+    <section
+      className="my-bookings"
+      style={{
+        backgroundImage: "url(/images/afropattern.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      {/* Overlay to ensure text readability over the pattern */}
+      <div className="bookings-overlay">
+        {error && (
+          <div className="alert alert-error">
+            {error}
+            <button className="close-btn" onClick={dismissError} type="button">
+              ×
+            </button>
+          </div>
+        )}
+
+        <div className="bookings-grid">
+          {bookings.map((booking) => (
+            <BookingCard
+              key={booking.id}
+              booking={booking}
+              onCancel={handleCancel}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };
 
