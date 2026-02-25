@@ -1,3 +1,6 @@
+/* ==========================
+   GLOBAL RESET & VARIABLES
+   ========================== */
 * {
   margin: 0;
   padding: 0;
@@ -5,150 +8,342 @@
 }
 
 :root {
-  --bg: #f5f1e8;
-  --brown-dark: #231209;
-  --brown: rgb(165, 88, 1);
-  --brown-light: #a67c52;
-  --cream: #eacea1;
-  --text: #2b2b2b;
-  --topbar-bg: rgba(165, 88, 1, 0.785);
+  --bg-primary: #FFF5E1; /* warm cream */
+  --bg-secondary: #4B3621; /* deep brown */
+  --accent: #F2C94C; /* soft yellow accent */
+  --text-primary: #4B3621; /* brown text */
+  --text-secondary: #66503B; /* warm secondary text */
 }
 
 body {
-  background-color: var(--bg);
-  font-family: "Segoe UI", sans-serif;
-  color: var(--text);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  scroll-behavior: smooth;
 }
 
 a {
   text-decoration: none;
+  color: inherit;
 }
 
-/*************** HEADER ***************/
-.topbar {
+/* ==========================
+   GRAIN + PATTERN OVERLAY
+   ========================== */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  background-image: url('/grain.png');
+  z-index: 9999;
+}
+
+.african-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: url('/african-pattern.png');
+  opacity: 0.08;
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+/* ==========================
+   HEADER MINIMAL / TOPBAR
+   ========================== */
+.topbar-minimal {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--topbar-bg);
-  backdrop-filter: blur(8px);
-}
-
-.topbar::after {
-  content: "";
-  display: block;
-  height: 5px;
-  background: linear-gradient(90deg, transparent, var(--brown), transparent);
-}
-
-.logo {
-  width: 180px;
-  padding: 20px 0px;
-}
-
-.navLinks {
   display: flex;
-  justify-content: end;
-  gap: 25px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  background: rgba(255, 245, 225, 0.95); /* light cream with slight transparency */
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-family: 'Inter', sans-serif;
 }
 
-.navLinks a {
-  color: white;
+.logo-left img {
+  height: 40px; /* smaller logo */
+  width: auto;
+}
+
+/* Right nav links */
+.nav-right {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+/* Small primary button */
+.btn-primary-small {
+  background: var(--accent);
+  color: var(--bg-secondary);
+  padding: 8px 16px;
+  border-radius: 999px;
   font-weight: 600;
-  margin-left: 0;
-  transition: 0.3s ease;
+  font-size: 0.85rem;
+  transition: transform 0.2s, background 0.2s;
+  cursor: pointer;
 }
 
-.navLinks a:hover {
-  color: var(--cream);
+.btn-primary-small:hover {
+  transform: scale(1.05);
+  background: #e6b93c;
 }
 
-/*************** HERO ***************/
-.hero {
-  background-color: var(--cream);
-  padding: 100px 0;
+/* Small outline button */
+.btn-outline-small {
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: transform 0.2s, background 0.2s, color 0.2s;
+  cursor: pointer;
 }
 
-.hero h1 {
-  font-size: 3rem;
-  color: var(--brown-dark);
-  font-weight: 600;
+.btn-outline-small:hover {
+  background: var(--accent);
+  color: var(--bg-secondary);
+  transform: scale(1.05);
 }
 
-.hero p {
-  margin-top: 20px;
-  font-size: 1.1rem;
-  max-width: 500px;
-}
-
-.hero-btn {
-  margin-top: 30px;
-  background-color: var(--brown);
+/* Logout button */
+.btn-logout {
+  background: none;
   border: none;
-  padding: 12px 30px;
-  color: white;
-  border-radius: 30px;
-  transition: 0.3s;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0 0.3rem;
 }
 
-.hero-btn:hover {
-  background-color: var(--brown-dark);
-  color: var(--bg);
+.user-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0.5rem;
 }
 
-/*************** SECTIONS ***************/
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .topbar-minimal {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+  }
+  .nav-right {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+/* ==========================
+   HERO SECTION
+   ========================== */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.hero-image-wrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.85) contrast(1.05) brightness(1.02);
+}
+
+.hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255,245,225,0.78) 0%,
+    rgba(255,245,225,0) 45%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  padding: 0 2rem;
+}
+
+.hero-content h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  font-size: clamp(56px, 6.8vw, 112px);
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.hero-content p {
+  font-size: clamp(14px, 1.1vw, 16px);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 auto 2rem;
+}
+
+/* ==========================
+   BUTTONS
+   ========================== */
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg-secondary);
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-block;
+  text-decoration: none;
+  transition: transform 0.2s, background 0.2s;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  background: #e6b93c; /* slightly darker yellow */
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 500;
+  transition: transform 0.2s, background 0.2s, color 0.2s;
+}
+
+.btn-outline:hover {
+  background: var(--accent);
+  color: var(--bg-secondary);
+  transform: scale(1.05);
+}
+
+/* ==========================
+   SECTIONS
+   ========================== */
 .section {
-  padding: 80px 0;
+  padding: 80px 2rem;
+  position: relative;
 }
 
 .section h2 {
-  color: var(--brown-dark);
-  margin-bottom: 40px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  font-size: clamp(32px, 4vw, 64px);
+  color: var(--text-primary);
+  margin-bottom: 2.5rem;
   text-align: center;
 }
 
+.section p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ==========================
+   CARDS
+   ========================== */
 .card-custom {
   border: none;
-  background-color: var(--cream);
-  padding: 30px;
-  border-radius: 15px;
-  transition: 0.3s;
+  background-color: var(--bg-primary);
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.10);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card-custom:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.12);
 }
 
-.custom-img {
-  max-width: 500px; /* scegli tu */
-  width: 100%;
+/* ==========================
+   SOUND BUTTON
+   ========================== */
+.sound-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  background: var(--accent);
+  border: none;
+  color: var(--bg-secondary);
+  cursor: pointer;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  transition: transform 0.2s;
+  z-index: 999;
 }
 
-/*************** CTA ***************/
+.sound-button:hover {
+  transform: scale(1.08);
+}
+
+/* ==========================
+   CTA SECTION
+   ========================== */
 .cta {
-  background-color: var(--brown);
-  color: white;
-  padding: 60px 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 60px 2rem;
   text-align: center;
 }
 
 .cta button {
-  background-color: white;
-  color: var(--brown-dark);
+  background: var(--accent);
+  color: var(--bg-secondary);
   border: none;
-  padding: 12px 30px;
-  border-radius: 30px;
+  padding: 12px 32px;
+  border-radius: 999px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
 }
 
-.reserve:hover {
-  background-color: var(--brown-dark);
-  color: #f5f1e8;
+.cta button:hover {
+  transform: scale(1.05);
+  background: #e6b93c;
 }
 
-/*************** FOOTER ***************/
+/* ==========================
+   FOOTER
+   ========================== */
 .footer {
-  background-color: var(--brown-dark);
-  color: #f5f1e8;
-  padding: 60px 0 30px 0;
+  background: var(--bg-secondary);
+  color: var(--bg-primary);
+  padding: 60px 2rem 30px 2rem;
 }
 
 .footer h5 {
@@ -158,12 +353,12 @@ a {
 
 .footer p,
 .footer a {
-  color: #f5f1e8;
+  color: var(--bg-primary);
   font-size: 0.95rem;
 }
 
 .footer a:hover {
-  color: var(--brown-light);
+  color: var(--accent);
 }
 
 .footer-bottom {
@@ -175,33 +370,72 @@ a {
   opacity: 0.8;
 }
 
-/*************** MOBILE ***************/
-@media (max-width: 768px) {
-  .hero {
-    padding: 60px 20px;
-    text-align: center;
-  }
-
-  .hero h1 {
-    font-size: 2rem;
-  }
-
-  .hero p {
-    max-width: 100%;
-  }
-
+/* ==========================
+   RESPONSIVE
+   ========================== */
+@media (max-width: 1199px) {
   .section {
-    padding: 60px 20px;
+    padding: 60px 2rem;
   }
-
-  .card-custom {
-    margin-bottom: 20px;
+  .section h2 {
+    font-size: clamp(28px, 5vw, 48px);
   }
 }
 
 @media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: clamp(36px, 10vw, 56px);
+  }
+  .hero-content p {
+    max-width: 100%;
+  }
   .navLinks {
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
+  .card-custom {
+    margin-bottom: 20px;
+  }
+  .cta button {
+    width: 86%;
+  }
+}
+
+/* ==========================
+   HERO CONTENT BACKGROUND
+   ========================== */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  padding: 0 2rem;
+  text-align: center;
+  border-radius: 20px;
+  /* xxxxxx The background-color is set inline in Home.jsx for easy editing */
+}
+
+/* ==========================
+   HORIZONTAL SCROLLING GALLERY
+   ========================== */
+.scrolling-gallery {
+  overflow: hidden;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.scrolling-track {
+  display: flex;
+  gap: 1rem;
+  animation: scrollLeft 20s linear infinite;
+}
+
+.scrolling-track img {
+  border-radius: 20px;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }

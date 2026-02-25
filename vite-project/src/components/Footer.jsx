@@ -19,7 +19,7 @@ const Footer = () => (
           <p><Link to="/contacts">Contact</Link></p>
         </div>
       </div>
-      <div className="footer-bottom">© {new Date().getFullYear()} Tokame · All rights reserved</div>
+      <div className="footer-bottom">© {new Date().getFullYear()} T O K A M E · All rights reserved</div>
     </div>
   </footer>
 );

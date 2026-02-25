@@ -6,7 +6,6 @@ const ProtectedRoute = ({ children, role }) => {
 
   if (!user) return <Navigate to="/login" />;
 
-  // FIX: ROLE_SUBADMIN should also access the admin panel
   if (role === "ADMIN" && user.role !== "ROLE_ADMIN" && user.role !== "ROLE_SUBADMIN") {
     return <Navigate to="/" />;
   }
