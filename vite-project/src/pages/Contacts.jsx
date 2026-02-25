@@ -1,116 +1,63 @@
 import { useState } from "react";
 
 const Contacts = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [sent, setSent] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
-    console.log(formData);
-    alert("Messaggio inviato (simulazione)");
+    setSent(true);
     setFormData({ name: "", email: "", message: "" });
   };
 
   return (
     <div className="container py-5">
-      {/* Titolo */}
       <div className="text-center mb-5">
-        <h2 className="fw-bold">Contactame</h2>
-        <p className="text-muted">
-          Sígueme en las redes sociales o envíame un mensaje directo
-        </p>
+        <h2 style={{ fontWeight: 700, color: "var(--brown-dark)" }}>Get in Touch</h2>
+        <p className="text-muted">Follow me on social media or send me a direct message</p>
       </div>
 
-      {/* Social + Info */}
       <div className="row justify-content-center mb-5">
         <div className="col-md-5 mb-4">
           <div className="p-4 border rounded shadow-sm h-100 text-center">
-            <h5 className="mb-3">Sígueme</h5>
-            <p className="mb-2">
-              <a href="https://instagram.com" target="_blank" rel="noreferrer">
-                Instagram
-              </a>
-            </p>
-            <p className="mb-2">
-              <a href="https://facebook.com" target="_blank" rel="noreferrer">
-                Facebook
-              </a>
-            </p>
-            <p className="mb-0">
-              <a href="https://linkedin.com" target="_blank" rel="noreferrer">
-                LinkedIn
-              </a>
-            </p>
+            <h5 className="mb-3">Follow Me</h5>
+            <p className="mb-2"><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></p>
+            <p className="mb-2"><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></p>
+            <p className="mb-0"><a href="https://linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a></p>
           </div>
         </div>
-
         <div className="col-md-5 mb-4">
           <div className="p-4 border rounded shadow-sm h-100 text-center">
-            <h5 className="mb-3">Información</h5>
-            <p>Email: info@email.com</p>
-            <p>Teléfono: +34 123 456 7890</p>
-            <p className="mb-0"></p>
+            <h5 className="mb-3">Contact Info</h5>
+            <p>Email: info@tokame.com</p>
+            <p>Phone: +34 123 456 7890</p>
+            <p className="mb-0">Thursday – Sunday, 10:00–20:00</p>
           </div>
         </div>
       </div>
 
-      {/* Form */}
       <div className="row justify-content-center">
         <div className="col-lg-6">
           <div className="card shadow p-4">
-            <h4 className="mb-4 text-center">Escríbeme un mensaje</h4>
-
+            <h4 className="mb-4 text-center">Send a Message</h4>
+            {sent && <div className="alert alert-success">Message sent! I'll get back to you soon.</div>}
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="form-label">Nome</label>
-                <input
-                  type="text"
-                  name="name"
-                  className="form-control"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
+                <label className="form-label">Name</label>
+                <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} required />
               </div>
-
               <div className="mb-3">
                 <label className="form-label">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  className="form-control"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
+                <input type="email" name="email" className="form-control" value={formData.email} onChange={handleChange} required />
               </div>
-
               <div className="mb-3">
-                <label className="form-label">Messaggio</label>
-                <textarea
-                  name="message"
-                  rows="4"
-                  className="form-control"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                ></textarea>
+                <label className="form-label">Message</label>
+                <textarea name="message" rows="4" className="form-control" value={formData.message} onChange={handleChange} required />
               </div>
-
               <div className="d-grid">
-                <button type="submit" className="btn btn-primary">
-                  Enviar mensaje
-                </button>
+                <button type="submit" className="btn btn-primary">Send Message</button>
               </div>
             </form>
           </div>

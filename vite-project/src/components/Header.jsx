@@ -5,11 +5,7 @@ const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
-
+  const handleLogout = () => { logout(); navigate("/"); };
   const isAdmin = user?.role === "ROLE_ADMIN" || user?.role === "ROLE_SUBADMIN";
 
   return (
@@ -17,31 +13,23 @@ const Header = () => {
       <div className="container">
         <div className="row align-items-center">
           <div className="col-6">
-            <Link to="/">
-              <img className="logo" src="/logo.png" alt="logo" />
-            </Link>
+            <Link to="/"><img className="logo" src="/logo.png" alt="Tokame" /></Link>
           </div>
-
           <div className="col-6 text-end">
             <nav className="navLinks">
               <Link to="/">Home</Link>
-              <Link to="/contacts">Contacto</Link>
-
+              <Link to="/contacts">Contact</Link>
               {!user ? (
                 <>
-                  <Link to="/registration">Regístrate</Link>
+                  <Link to="/registration">Sign Up</Link>
                   <Link to="/login">Login</Link>
                 </>
               ) : (
                 <>
-                  {isAdmin ? (
-                    <Link to="/admin">Panel Admin</Link>
-                  ) : (
-                    <Link to="/booking">Mis reservas</Link>
-                  )}
-                  <span className="fw-bold text-white">{user.name}</span>
-                  <button onClick={handleLogout} className="btn fw-bold text-warning p-0 ms-2">
-                    Salir
+                  {isAdmin ? <Link to="/admin">Admin Panel</Link> : <Link to="/booking">My Bookings</Link>}
+                  <span style={{ color: "var(--cream)", fontWeight: 600 }}>{user.name}</span>
+                  <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#ffe082", fontWeight: 600, cursor: "pointer", padding: 0 }}>
+                    Log out
                   </button>
                 </>
               )}
