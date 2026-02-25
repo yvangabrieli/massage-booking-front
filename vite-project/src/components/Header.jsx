@@ -10,45 +10,44 @@ const Header = () => {
     navigate("/");
   };
 
+  const handleBookNow = () => {
+    navigate("/booking"); // navigate to booking page
+  };
+
   const isAdmin = user?.role === "ROLE_ADMIN" || user?.role === "ROLE_SUBADMIN";
 
   return (
-    <header className="topbar">
-      <div className="container">
-        <div className="row align-items-center">
-          <div className="col-6">
-            <Link to="/">
-              <img className="logo" src="/logo.png" alt="logo" />
-            </Link>
-          </div>
-
-          <div className="col-6 text-end">
-            <nav className="navLinks">
-              <Link to="/">Home</Link>
-              <Link to="/contacts">Contacto</Link>
-
-              {!user ? (
-                <>
-                  <Link to="/registration">Regístrate</Link>
-                  <Link to="/login">Login</Link>
-                </>
-              ) : (
-                <>
-                  {isAdmin ? (
-                    <Link to="/admin">Panel Admin</Link>
-                  ) : (
-                    <Link to="/booking">Mis reservas</Link>
-                  )}
-                  <span className="fw-bold text-white">{user.name}</span>
-                  <button onClick={handleLogout} className="btn fw-bold text-warning p-0 ms-2">
-                    Salir
-                  </button>
-                </>
-              )}
-            </nav>
-          </div>
-        </div>
+    <header className="topbar-minimal">
+      {/* Left side: logo */}
+      <div className="logo-left">
+        <Link to="/">
+          <img src="/images/logo.png" alt="Tokame" /> {/* xxxxx replace with your logo */}
+        </Link>
       </div>
+
+      {/* Right side: user links */}
+      <nav className="nav-right">
+        <Link to="/" className="btn-outline-small">Home</Link>  {/* <-- Home link */}
+        <button onClick={handleBookNow} className="btn-primary-small">
+          Book Now
+        </button>
+
+        {!user ? (
+          <>
+            <Link to="/registration" className="btn-outline-small">Sign Up</Link>
+            <Link to="/login" className="btn-primary-small">Login</Link>
+          </>
+        ) : (
+          <>
+            {isAdmin
+              ? <Link to="/admin" className="btn-outline-small">Admin Panel</Link>
+              : <Link to="/booking" className="btn-outline-small">My Bookings</Link>
+            }
+            <span className="user-name">{user.name}</span>
+            <button onClick={handleLogout} className="btn-logout">Log out</button>
+          </>
+        )}
+      </nav>
     </header>
   );
 };

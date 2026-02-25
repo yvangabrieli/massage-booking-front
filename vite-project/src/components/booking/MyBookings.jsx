@@ -1,91 +1,84 @@
 import { useEffect, useState } from "react";
 import { getMyBookings, cancelBooking } from "../../services/bookingService";
 
-const STATUS_LABELS = {
-  BOOKED: { label: "Reservado", color: "success" },
-  COMPLETED: { label: "Completado", color: "secondary" },
-  CANCELED: { label: "Cancelado", color: "danger" },
-  NO_SHOW: { label: "No presentado", color: "warning" },
+const STATUS = {
+  BOOKED: { label: "Upcoming", color: "#2e7d32", bg: "#e8f5e9" },
+  COMPLETED: { label: "Completed", color: "#555", bg: "#f0f0f0" },
+  CANCELED: { label: "Cancelled", color: "#c62828", bg: "#ffebee" },
+  NO_SHOW: { label: "No Show", color: "#e65100", bg: "#fff3e0" },
 };
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const loadBookings = () => {
+  const load = () => {
     setLoading(true);
-    // FIX: GET /bookings — no clientId param needed, JWT handles it
     getMyBookings()
-      .then((res) => setBookings(res.data.content || []))
-      .catch(() => setError("Error cargando reservas"))
+      .then(res => setBookings(res.data.content || []))
+      .catch(() => setError("Could not load bookings"))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { loadBookings(); }, []);
+  useEffect(() => { load(); }, []);
 
-  const handleCancel = (booking) => {
-    // FIX: check canCancel field from API instead of recalculating client-side
-    if (!booking.canCancel) {
-      return setError("No puedes cancelar con menos de 12 horas de antelación");
-    }
-    if (!window.confirm("¿Cancelar esta reserva?")) return;
-
-    // FIX: reason as query param (not body)
-    cancelBooking(booking.id, "Cancelado por el cliente")
-      .then(loadBookings)
-      .catch(() => setError("Error al cancelar la reserva"));
+  const handleCancel = (b) => {
+    if (!b.canCancel) return setError("Cannot cancel within 12 hours of appointment");
+    if (!window.confirm("Cancel this booking?")) return;
+    cancelBooking(b.id, "Cancelled by client").then(load).catch(() => setError("Could not cancel booking"));
   };
 
-  if (loading) return <div className="text-center py-3"><div className="spinner-border spinner-border-sm" /></div>;
+  if (loading) return <div className="text-center py-3"><div className="spinner-border spinner-border-sm" style={{ color: "var(--brown)" }} /></div>;
+
+  if (bookings.length === 0) return (
+    <div style={{ textAlign: "center", padding: "2rem", color: "#aaa" }}>
+      <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>📋</div>
+      <div>No bookings yet — book your first session above!</div>
+    </div>
+  );
 
   return (
-    <div className="mt-4">
-      <h4 className="mb-3">Mis reservas</h4>
-
-      {error && <div className="alert alert-danger alert-dismissible">
-        {error}
-        <button className="btn-close" onClick={() => setError("")} />
+    <div>
+      {error && <div className="alert alert-danger alert-dismissible mb-3">
+        {error}<button className="btn-close" onClick={() => setError("")} />
       </div>}
-
-      {bookings.length === 0 && (
-        <div className="alert alert-info">No tienes reservas todavía.</div>
-      )}
-
-      {bookings.map((b) => {
-        const statusInfo = STATUS_LABELS[b.status] || { label: b.status, color: "secondary" };
-        return (
-          <div key={b.id} className="card p-3 mb-3 shadow-sm">
-            <div className="d-flex justify-content-between align-items-start">
-              <div>
-                {/* FIX: show service name + status badge */}
-                <strong>{b.service?.name || "Servicio"}</strong>
-                <span className={`badge bg-${statusInfo.color} ms-2`}>{statusInfo.label}</span>
-                <div className="text-muted mt-1">
-                  {new Date(b.startTime).toLocaleString("es-ES", {
-                    weekday: "short", day: "2-digit", month: "short",
-                    hour: "2-digit", minute: "2-digit"
-                  })}
+      <div className="row g-3">
+        {bookings.map(b => {
+          const s = STATUS[b.status] || { label: b.status, color: "#555", bg: "#f0f0f0" };
+          return (
+            <div key={b.id} className="col-md-6">
+              <div style={{ background: "white", borderRadius: "14px", padding: "1.25rem", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                    <strong style={{ color: "var(--brown-dark)" }}>{b.service?.name || "Session"}</strong>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 700, background: s.bg, color: s.color, padding: "2px 10px", borderRadius: "20px" }}>{s.label}</span>
+                  </div>
+                  <div style={{ color: "#666", fontSize: "0.9rem" }}>
+                    {new Date(b.startTime).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
+                    {" · "}
+                    {new Date(b.startTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                  {b.service?.durationMinutes && (
+                    <div style={{ color: "#aaa", fontSize: "0.82rem", marginTop: "2px" }}>{b.service.durationMinutes} min</div>
+                  )}
+                  {b.canceledReason && (
+                    <div style={{ color: "#e57373", fontSize: "0.82rem", marginTop: "4px" }}>Reason: {b.canceledReason}</div>
+                  )}
                 </div>
-                {b.service?.durationMinutes && (
-                  <small className="text-muted">{b.service.durationMinutes} min</small>
-                )}
-                {b.canceledReason && (
-                  <div className="text-danger mt-1"><small>Motivo: {b.canceledReason}</small></div>
+                {b.status === "BOOKED" && b.canCancel && (
+                  <button onClick={() => handleCancel(b)}
+                    style={{ background: "none", border: "1px solid #ffcdd2", color: "#e57373", borderRadius: "8px", padding: "6px 12px", fontSize: "0.82rem", cursor: "pointer", whiteSpace: "nowrap", transition: "0.2s" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "#ffebee"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                    Cancel
+                  </button>
                 )}
               </div>
-              {b.status === "BOOKED" && b.canCancel && (
-                <button
-                  className="btn btn-outline-danger btn-sm"
-                  onClick={() => handleCancel(b)}
-                >
-                  Cancelar
-                </button>
-              )}
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };

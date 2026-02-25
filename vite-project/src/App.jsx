@@ -18,6 +18,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="registration" element={<Registration />} />
 
+          {/* Admin protected */}
           <Route
             path="admin"
             element={
@@ -27,13 +28,10 @@ function App() {
             }
           />
 
+          {/* Booking accessible to all, login checked inside BookingPage */}
           <Route
             path="booking"
-            element={
-              <ProtectedRoute role="CLIENT">
-                <BookingPage />
-              </ProtectedRoute>
-            }
+            element={<BookingPage />}
           />
         </Route>
       </Routes>
