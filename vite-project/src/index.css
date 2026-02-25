@@ -1,0 +1,207 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #f5f1e8;
+  --brown-dark: #231209;
+  --brown: rgb(165, 88, 1);
+  --brown-light: #a67c52;
+  --cream: #eacea1;
+  --text: #2b2b2b;
+  --topbar-bg: rgba(165, 88, 1, 0.785);
+}
+
+body {
+  background-color: var(--bg);
+  font-family: "Segoe UI", sans-serif;
+  color: var(--text);
+}
+
+a {
+  text-decoration: none;
+}
+
+/*************** HEADER ***************/
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--topbar-bg);
+  backdrop-filter: blur(8px);
+}
+
+.topbar::after {
+  content: "";
+  display: block;
+  height: 5px;
+  background: linear-gradient(90deg, transparent, var(--brown), transparent);
+}
+
+.logo {
+  width: 180px;
+  padding: 20px 0px;
+}
+
+.navLinks {
+  display: flex;
+  justify-content: end;
+  gap: 25px;
+}
+
+.navLinks a {
+  color: white;
+  font-weight: 600;
+  margin-left: 0;
+  transition: 0.3s ease;
+}
+
+.navLinks a:hover {
+  color: var(--cream);
+}
+
+/*************** HERO ***************/
+.hero {
+  background-color: var(--cream);
+  padding: 100px 0;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  color: var(--brown-dark);
+  font-weight: 600;
+}
+
+.hero p {
+  margin-top: 20px;
+  font-size: 1.1rem;
+  max-width: 500px;
+}
+
+.hero-btn {
+  margin-top: 30px;
+  background-color: var(--brown);
+  border: none;
+  padding: 12px 30px;
+  color: white;
+  border-radius: 30px;
+  transition: 0.3s;
+}
+
+.hero-btn:hover {
+  background-color: var(--brown-dark);
+  color: var(--bg);
+}
+
+/*************** SECTIONS ***************/
+.section {
+  padding: 80px 0;
+}
+
+.section h2 {
+  color: var(--brown-dark);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.card-custom {
+  border: none;
+  background-color: var(--cream);
+  padding: 30px;
+  border-radius: 15px;
+  transition: 0.3s;
+}
+
+.card-custom:hover {
+  transform: translateY(-5px);
+}
+
+.custom-img {
+  max-width: 500px; /* scegli tu */
+  width: 100%;
+}
+
+/*************** CTA ***************/
+.cta {
+  background-color: var(--brown);
+  color: white;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.cta button {
+  background-color: white;
+  color: var(--brown-dark);
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+}
+
+.reserve:hover {
+  background-color: var(--brown-dark);
+  color: #f5f1e8;
+}
+
+/*************** FOOTER ***************/
+.footer {
+  background-color: var(--brown-dark);
+  color: #f5f1e8;
+  padding: 60px 0 30px 0;
+}
+
+.footer h5 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.footer p,
+.footer a {
+  color: #f5f1e8;
+  font-size: 0.95rem;
+}
+
+.footer a:hover {
+  color: var(--brown-light);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 40px;
+  padding-top: 20px;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/*************** MOBILE ***************/
+@media (max-width: 768px) {
+  .hero {
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    max-width: 100%;
+  }
+
+  .section {
+    padding: 60px 20px;
+  }
+
+  .card-custom {
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
