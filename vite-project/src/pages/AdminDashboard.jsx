@@ -4,17 +4,17 @@ import BookingsManager from "../components/admin/BookingsManager";
 import ServicesManager from "../components/admin/ServicesManager";
 import { useAuth } from "../context/AuthContext";
 
-const TABS = ["Reservas", "Clientes", "Servicios"];
+const TABS = ["Bookings", "Clients", "Services"];
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("Reservas");
+  const [activeTab, setActiveTab] = useState("Bookings");
   const isFullAdmin = user?.role === "ROLE_ADMIN";
 
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">Panel de administración</h2>
+        <h2 className="mb-0">Administration Dashboard</h2>
         <span className="badge bg-dark">{user?.role}</span>
       </div>
 
@@ -31,9 +31,9 @@ const AdminDashboard = () => {
         ))}
       </ul>
 
-      {activeTab === "Reservas" && <BookingsManager />}
-      {activeTab === "Clientes" && <ClientsManager />}
-      {activeTab === "Servicios" && <ServicesManager />}
+      {activeTab === "Bookings" && <BookingsManager />}
+      {activeTab === "Clients" && <ClientsManager />}
+      {activeTab === "Services" && <ServicesManager />}
     </div>
   );
 };
