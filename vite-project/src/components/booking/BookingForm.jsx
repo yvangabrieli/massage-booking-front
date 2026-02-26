@@ -1,59 +1,125 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
+
+const MIN_ADVANCE_HOURS = 2;
+const MAX_ADVANCE_DAYS = 90;
 
 const BookingForm = ({ service, onSubmit, loading }) => {
   const [dateTime, setDateTime] = useState("");
   const [error, setError] = useState("");
 
-  const handleBooking = () => {
+  if (!service) return null;
+
+  const validateBooking = (startDate) => {
+    const now = new Date();
+    const diffHours = (startDate - now) / (1000 * 60 * 60);
+
+    if (diffHours < MIN_ADVANCE_HOURS) {
+      return "Please book at least 2 hours in advance";
+    }
+    if (diffHours > 24 * MAX_ADVANCE_DAYS) {
+      return "Cannot book more than 3 months ahead";
+    }
+    return null;
+  };
+
+  const handleSubmit = () => {
     setError("");
 
-    if (!service) return setError("Selecciona un servicio primero");
+    const startDate = new Date(dateTime);
+    if (isNaN(startDate.getTime())) {
+      setError("Please select a valid date and time");
+      return;
+    }
 
-    const start = new Date(dateTime);
-    const now = new Date();
+    const validationError = validateBooking(startDate);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
-    if (isNaN(start.getTime())) return setError("Selecciona una fecha y hora");
-
-    const diffHours = (start - now) / (1000 * 60 * 60);
-    if (diffHours < 2) return setError("Debes reservar con al menos 2 horas de antelación");
-    if (diffHours > 24 * 90) return setError("No puedes reservar con más de 3 meses de antelación");
-
-    // FIX: send ONLY serviceId + startTime — NO endTime (backend calculates it)
     onSubmit({
       serviceId: service.id,
-      startTime: start.toISOString().slice(0, 19), // "2025-06-15T10:00:00"
+      startTime: startDate.toISOString().slice(0, 19),
     });
 
     setDateTime("");
   };
 
-  if (!service) return null;
+  const formatServiceDetails = () => {
+    const duration = `${service.durationMinutes} min`;
+    const price = service.price ? ` — ${service.price}€` : "";
+    return `${duration}${price}`;
+  };
 
   return (
-    <div className="card p-4 mb-4">
-      <h5 className="mb-3">
-        Reservar: <strong>{service.name}</strong>{" "}
-        <span className="text-muted">({service.durationMinutes} min — {service.price ? `${service.price}€` : ""})</span>
-      </h5>
+    <article className="booking-form-container">
+      {/*
+        PASTE YOUR LOCAL IMAGE PATH HERE:
+        Example: src="/assets/images/massage-therapy.jpg"
+        Or: src={require("../../assets/massage.jpg")}
+      */}
+      <img
+        src="/path/to/your/local/image.jpg"
+        alt="Massage therapy session"
+        className="booking-image"
+      />
 
-      {error && <div className="alert alert-danger py-2">{error}</div>}
+      <div className="booking-form-card">
+        <header className="form-header">
+          <h4>Book Your Session</h4>
+          <div className="service-summary">
+            <strong>{service.name}</strong>
+            <span className="text-muted">{formatServiceDetails()}</span>
+          </div>
+        </header>
 
-      <div className="mb-3">
-        <label className="form-label">Fecha y hora</label>
-        <input
-          type="datetime-local"
-          className="form-control"
-          value={dateTime}
-          onChange={(e) => setDateTime(e.target.value)}
-        />
-        <small className="text-muted">Disponible jueves a domingo, 10:00–20:00</small>
+        {error && <div className="alert alert-danger">{error}</div>}
+
+        <div className="form-group">
+          <label htmlFor="datetime" className="form-label">
+            Date & Time
+          </label>
+          <input
+            id="datetime"
+            type="datetime-local"
+            className="form-control"
+            value={dateTime}
+            onChange={(e) => setDateTime(e.target.value)}
+            disabled={loading}
+          />
+          <small className="form-hint">
+            Available Thursday–Sunday, 10:00–20:00
+          </small>
+        </div>
+
+        <button
+          className="btn btn-primary btn-block"
+          onClick={handleSubmit}
+          disabled={loading || !dateTime}
+          type="button"
+        >
+          {loading ? "Processing..." : "Confirm Booking"}
+        </button>
       </div>
-
-      <button className="btn btn-success" onClick={handleBooking} disabled={loading}>
-        {loading ? "Reservando..." : "Confirmar reserva"}
-      </button>
-    </div>
+    </article>
   );
+};
+
+BookingForm.propTypes = {
+  service: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    durationMinutes: PropTypes.number.isRequired,
+    price: PropTypes.number,
+  }),
+  onSubmit: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+};
+
+BookingForm.defaultProps = {
+  service: null,
+  loading: false,
 };
 
 export default BookingForm;
