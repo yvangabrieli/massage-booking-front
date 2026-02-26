@@ -150,7 +150,7 @@ const MyBookings = () => {
     <section
       className="my-bookings"
       style={{
-        backgroundImage: "url(/images/afropattern.jpg)",
+        backgroundImage: "url(/images/afropattern.png)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

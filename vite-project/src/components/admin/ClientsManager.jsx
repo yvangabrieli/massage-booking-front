@@ -10,7 +10,8 @@ const ClientsManager = () => {
     setLoading(true);
     const params = searchTerm ? { search: searchTerm } : {};
     api.get("/clients", { params })
-      .then((res) => setClients(res.data.content || []))
+      // ✅ FIX: handle both Page<ClientResponse> (.content) and plain List<ClientResponse>
+      .then((res) => setClients(res.data.content || res.data || []))
       .catch(console.error)
       .finally(() => setLoading(false));
   };
@@ -48,7 +49,7 @@ const ClientsManager = () => {
             <div>
               <strong>{c.name}</strong>
               {!c.active && <span className="badge bg-secondary ms-2">Inactivo</span>}
-              <div className="text-muted">{c.phone}</div>
+              {c.phone && <div className="text-muted">{c.phone}</div>}
               {c.email && <small className="text-muted">{c.email}</small>}
               {c.notes && <div><small className="text-muted fst-italic">{c.notes}</small></div>}
             </div>
